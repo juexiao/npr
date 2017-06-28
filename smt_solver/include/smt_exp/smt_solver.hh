@@ -22,6 +22,10 @@ class CoverTable : public std::vector<int> {
 
 public:
   CoverTable() {}
+  CoverTable(const std::vector<int>& other) : 
+    std::vector<int>(other) {}
+
+
   CoverTable(std::string input);
   std::string toString() const;
 
@@ -117,7 +121,7 @@ public:
   virtual ~IsingFourFunc();
 
   virtual std::string getFuncDecl() const;
-  virtual std::string getFuncExpr(CoverTable cov) const;
+  virtual std::string getFuncExpr(const CoverTable& cov) const;
 
   virtual void init();
 
@@ -166,7 +170,7 @@ public:
   
 private:
 
-  void initVars();
+  void initVars(unsigned var_num);
   void initFunctions();
   void initAsserts();
 

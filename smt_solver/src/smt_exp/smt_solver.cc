@@ -13,6 +13,7 @@
 #include <cassert>
 
 #include "smt_exp/smt_solver.hh"
+#include "smt_exp/bin_iterator.hh"
 
 #define BUF_SIZE 256
 
@@ -146,7 +147,7 @@ std::string IsingFourFunc::getFuncDecl() const {
   return ss.str();
 }
 
-std::string IsingFourFunc::getFuncExpr(CoverTable cov) const {
+std::string IsingFourFunc::getFuncExpr(const CoverTable& cov) const {
 
   std::stringstream ss;
   ss << "(" << _name;
@@ -202,7 +203,7 @@ void SmtWriter::initFunction(std::string filename) {
   _truth_table = new TruthTable;
   _truth_table->loadTruthTable(filename);
 
-  initVars();
+  initVars(4);
 
   SmtFunction* func = new IsingFourFunc("ising4");
   func->init();
@@ -213,16 +214,16 @@ void SmtWriter::initFunction(std::string filename) {
 
 }
 
-void SmtWriter::initVars() {
+void SmtWriter::initVars(unsigned var_num) {
 
-  for (size_t i = 1; i <= 4; ++i) {
+  for (size_t i = 1; i <= var_num; ++i) {
     std::string var = "a" + std::to_string(i);
     SmtVar* smt_var = new SmtVar("Real", 2.0, -2.0, var);
     _vars.push_back(smt_var);
   }
 
-  for (size_t i = 1; i <= 4; ++i) {
-    for (size_t j = i+1; j <= 4; ++j) {
+  for (size_t i = 1; i <= var_num; ++i) {
+    for (size_t j = i+1; j <= var_num; ++j) {
       std::string var = "b" + std::to_string(i) + std::to_string(j);
       SmtVar* smt_var = new SmtVar("Real", 1.0, -1.0, var);
       _vars.push_back(smt_var);
@@ -234,19 +235,57 @@ void SmtWriter::initVars() {
 void SmtWriter::initAsserts() {
 
   //1) all valid 
-  std::stringstream ss;
-  ss << "(assert (=";
-  TruthTable::covertable_const_iter c_iter = _truth_table->begin();
-  for (; c_iter != _truth_table->end(); ++c_iter) {
-    ss << " " <<  _funcs[0]->getFuncExpr(*c_iter);
+  {
+    std::stringstream ss;
+    ss << "(assert (=";
+    TruthTable::covertable_const_iter c_iter = _truth_table->begin();
+    for (; c_iter != _truth_table->end(); ++c_iter) {
+      ss << " " <<  _funcs[0]->getFuncExpr(*c_iter);
+    }
+    ss << ") )" << std::endl;
+    _asserts.push_back(ss.str());
   }
-  ss << ") )" << std::endl;
-  _asserts.push_back(ss.str());
 
 
   //2) non-valid cover tables
+  BinIterator bin_iter(4);
+  for (; !bin_iter.end(); ++bin_iter) {
+    CoverTable cov(bin_iter.value());
+
+    if (_truth_table->isValid(cov.toString()))
+      continue;
 
 
+    std::stringstream ss;
+    ss << "(assert (<";
+    ss << " " << _funcs[0]->getFuncExpr(*(_truth_table->begin()));
+    ss << " " << _funcs[0]->getFuncExpr(cov);
+    ss << ") )" << std::endl;
+    _asserts.push_back(ss.str());
+  }
+
+
+
+}
+
+void SmtWriter::writeSmt(std::string filename) {
+  std::ofstream outfile;
+  outfile.open(filename.c_str());
+
+  std::vector<SmtVar*>::iterator var_iter = _vars.begin();
+  for (; var_iter != _vars.end(); ++var_iter) {
+    outfile << (*var_iter)->getExpr();
+  }
+
+  std::vector<std::string>::iterator assert_iter = _asserts.begin();
+  for (; assert_iter != _asserts.end(); ++assert_iter) {
+    outfile << *assert_iter ;
+  }
+
+  outfile << "(check-sat)" << std::endl;
+  outfile << "(get-model)" << std::endl;
+
+  outfile.close();
 }
 
 
