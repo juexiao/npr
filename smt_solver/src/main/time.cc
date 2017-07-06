@@ -13,8 +13,6 @@
 // and use shell svn to catch svn revision
 // it should be invoked when linking in the makefile
 
-namespace nimbus {
-
 
 char build_time[] = "MAKE_DATE_TIME";
 
@@ -26,6 +24,4 @@ char svn_version[] = "SVN_VERSION";
 
 char* getSvnVersion() {
   return svn_version;
-}
-
 }

@@ -15,20 +15,14 @@
 #include <iostream>
 #include <string>
 #include "smt_exp/smt_solver.hh"
+#include "smt_exp/truth_table_gen.hh"
 
 
 
 int main(int argc, char** argv) {
-  if (argc != 2)
-    std::cout << "Usage: smt_solver <lut file>" << std::endl;
 
-
-  std::string filename(argv[1]);
-  std::string outfile = "smt" + filename;
-
-  SmtWriter smt_writer;
-  smt_writer.initFunction(filename);
-  smt_writer.writeSmt(outfile);
+  TruthTableGenerator generator(3);
+  generator.generateAllTruthTable();
 
 
   return 0;

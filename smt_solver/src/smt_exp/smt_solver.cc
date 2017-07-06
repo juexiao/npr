@@ -34,6 +34,15 @@ CoverTable::CoverTable(std::string input) {
 
 }
 
+CoverTable::CoverTable(const std::vector<int>& other) :
+  std::vector<int>(other) {
+  for (size_t i = 0; i < size(); ++i) {
+    DASSERT(at(i) == 1 || at(i) == 0);
+    if (at(i) == 0) at(i) = -1;
+  }
+
+}
+
 std::string CoverTable::toString() const {
 
   std::stringstream ss;
@@ -53,8 +62,8 @@ std::string SmtVar::getExpr() const {
   ss << "(declare-const " << _name << " " << _data_type << ")" << std::endl;
 
   //2) range
-  ss << "(assert (<= " << _name << " " << _upper_bound << ")" << std::endl;
-  ss << "(assert (>= " << _name << " " << _lower_bound << ")" << std::endl;
+  ss << "(assert (<= " << _name << " " << _upper_bound << "))" << std::endl;
+  ss << "(assert (>= " << _name << " " << _lower_bound << "))" << std::endl;
 
   return ss.str();
 }
@@ -104,7 +113,7 @@ void IsingFourFunc::initExprs() {
 
   for (size_t i = 1; i <= 4; ++i) {
     std::string var1 = "a" + std::to_string(i);
-    std::string var2 = _inputs[i]->getName();
+    std::string var2 = _inputs[i-1]->getName();
     SmtExpression* smt_exp = new SmtExpression("*", var1, var2, "");
     _expressions.push_back(smt_exp);
   }
@@ -112,8 +121,8 @@ void IsingFourFunc::initExprs() {
   for (size_t  i = 1; i <= 4; ++i) {
     for (size_t j = i + 1; j <= 4; ++j) {
       std::string var1 = "b" + std::to_string(i) + std::to_string(j);
-      std::string var2 = _inputs[i]->getName();
-      std::string var3 = _inputs[j]->getName();
+      std::string var2 = _inputs[i-1]->getName();
+      std::string var3 = _inputs[j-1]->getName();
       SmtExpression* smt_exp = new SmtExpression("*", var1, var2, var3);
       _expressions.push_back(smt_exp);
     }
@@ -151,11 +160,12 @@ std::string IsingFourFunc::getFuncExpr(const CoverTable& cov) const {
 
   std::stringstream ss;
   ss << "(" << _name;
-  DASSERT(cov.size() == 3);
-  for (size_t i = 0; i < cov.size(); ++i) {
+  DASSERT(cov.size() == 4);
+  for (size_t i = 0; i < cov.size()-1; ++i) {
     DASSERT(cov[i]==1 || cov[i]==-1);
     ss << " " << cov[i];
   }
+  ss << " " << cov[cov.size()-1];
   ss << ")";
 
   return ss.str();
@@ -168,19 +178,24 @@ void TruthTable::loadTruthTable(std::string file) {
   char buf[BUF_SIZE];
   infile.open(file.c_str());
 
-  while (infile.getline(buf, BUF_SIZE)) {
+  while (infile.getline(buf, BUF_SIZE, '\n')) {
+    std::string str_buf(buf);
+    //std::cout << str_buf << std::endl;
 
     CoverTable cov;
-    int i;
-    for (i = 0; i < BUF_SIZE; ++i) {
+    size_t i;
+    for (i = 0; i < str_buf.size(); ++i) {
 
       if (buf[i] == '1')
         cov.push_back(1);
       else if (buf[i] == '0')
         cov.push_back(-1);
+      else if (buf[i] == 0)
+        break;
       else
         DASSERT(0);
     }
+    _valid.push_back(cov);
     _valid_str.insert(cov.toString());
 
   }
@@ -276,11 +291,17 @@ void SmtWriter::writeSmt(std::string filename) {
   for (; var_iter != _vars.end(); ++var_iter) {
     outfile << (*var_iter)->getExpr();
   }
+  outfile << std::endl;
+
+  for (size_t i = 0; i < _funcs.size(); ++i)
+    outfile << _funcs[i]->getFuncDecl() << std::endl;
+  outfile << std::endl;
 
   std::vector<std::string>::iterator assert_iter = _asserts.begin();
   for (; assert_iter != _asserts.end(); ++assert_iter) {
     outfile << *assert_iter ;
   }
+  outfile << std::endl;
 
   outfile << "(check-sat)" << std::endl;
   outfile << "(get-model)" << std::endl;

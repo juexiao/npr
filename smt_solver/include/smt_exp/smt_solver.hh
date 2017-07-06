@@ -22,8 +22,7 @@ class CoverTable : public std::vector<int> {
 
 public:
   CoverTable() {}
-  CoverTable(const std::vector<int>& other) : 
-    std::vector<int>(other) {}
+  CoverTable(const std::vector<int>& other);
 
 
   CoverTable(std::string input);
