@@ -11,6 +11,8 @@
 
 #include "smt_exp/truth_table_gen.hh"
 #include "smt_exp/bin_iterator.hh"
+#include "smt_exp/smt_solver.hh"
+#include "smt_exp/smt_manager.hh"
 
 #include <cmath>
 #include <fstream>
@@ -26,6 +28,12 @@ std::string toString(unsigned int i) {
 }
 
 void TruthTableGenerator::generateAllTruthTable() {
+
+  std::string result_csv = "/truth_table_result.csv";
+  result_csv = _path + result_csv;
+  std::ofstream result_file;
+  result_file.open(result_csv.c_str());
+  result_file << "Orig index, TruthTable index, SAT, Gap" << std::endl;
 
   unsigned entry_num = 1 << _table_size;
 
@@ -49,7 +57,20 @@ void TruthTableGenerator::generateAllTruthTable() {
 
     }
     outfile.close();
+
+    SmtWriter smt_writer;
+    smt_writer.initFunction(outfilename);
+    smt_writer.writeSmt(outfilename + ".smt2");
+
+
+    result_file << index << ",";
+    SmtManager smt_mgr(outfilename + ".smt2", truth_table);
+    result_file << smt_mgr.AnalyzeEnergy() << std::endl;
+    smt_mgr.writeEnergyLandscape(outfilename + ".energy");
+
   }
+
+  result_file.close();
 
 }
 

@@ -303,8 +303,8 @@ void SmtWriter::writeSmt(std::string filename) {
   }
   outfile << std::endl;
 
-  outfile << "(check-sat)" << std::endl;
-  outfile << "(get-model)" << std::endl;
+  //outfile << "(check-sat)" << std::endl;
+  //outfile << "(get-model)" << std::endl;
 
   outfile.close();
 }
