@@ -62,8 +62,10 @@ std::string SmtManager::AnalyzeEnergy() {
 
       s_val << m[i].name();
       s_val_name << m.get_const_interp(m[i]);
+      std::cout << s_val_name.str() << " " << s_val.str() << std::endl;
       setParam(s_val.str(), s_val_name.str());
     }
+    std::cout << std::endl;
     findGap();
     ss << "sat," << _gap;
   }
@@ -89,6 +91,10 @@ unsigned SmtManager::binToInt(const std::vector<int>& table) {
 
 
 void SmtManager::setParam(const std::string& var_name, const std::string& val) {
+
+  if (var_name[0] == 'c') return;
+  if (var_name[0] == 'k') return;
+  if (var_name[0] == 'g') return;
 
   if (var_name == "a1") {
     a1 = toDouble(val);

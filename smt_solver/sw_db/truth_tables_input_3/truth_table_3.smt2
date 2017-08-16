@@ -29,18 +29,30 @@
 (assert (<= b34 1))
 (assert (>= b34 -1))
 
+
+(declare-const g Real)
+(declare-const k Real)
+
 (define-fun ising4((q1 Real)(q2 Real)(q3 Real)(q4 Real))Real
 (+ (* a1 q1) (* a2 q2) (* a3 q3) (* a4 q4) (* b12 q1 q2) (* b13 q1 q3) (* b14 q1 q4) (* b23 q2 q3) (* b24 q2 q4) (* b34 q3 q4))
 )
 
 
 (assert (= (ising4 -1 -1 -1 1) (ising4 1 -1 -1 1) (ising4 -1 1 -1 -1) (ising4 1 1 -1 -1) (ising4 -1 -1 1 -1) (ising4 1 -1 1 -1) (ising4 -1 1 1 -1) (ising4 1 1 1 -1)) )
-(assert (< (ising4 -1 -1 -1 1) (ising4 -1 -1 -1 -1)) )
-(assert (< (ising4 -1 -1 -1 1) (ising4 1 -1 -1 -1)) )
-(assert (< (ising4 -1 -1 -1 1) (ising4 -1 1 -1 1)) )
-(assert (< (ising4 -1 -1 -1 1) (ising4 1 1 -1 1)) )
-(assert (< (ising4 -1 -1 -1 1) (ising4 -1 -1 1 1)) )
-(assert (< (ising4 -1 -1 -1 1) (ising4 1 -1 1 1)) )
-(assert (< (ising4 -1 -1 -1 1) (ising4 -1 1 1 1)) )
-(assert (< (ising4 -1 -1 -1 1) (ising4 1 1 1 1)) )
+
+(assert (= (ising4 -1 -1 -1 1) g))
+(assert (< k (ising4 -1 -1 -1 -1)) )
+(assert (< k (ising4 1 -1 -1 -1)) )
+(assert (< k (ising4 -1 1 -1 1)) )
+(assert (< k (ising4 1 1 -1 1)) )
+(assert (< k (ising4 -1 -1 1 1)) )
+(assert (< k (ising4 1 -1 1 1)) )
+(assert (< k (ising4 -1 1 1 1)) )
+(assert (< k (ising4 1 1 1 1)) )
+
+ (maximize (- k g))
+; (assert (< g k))
+
+(check-sat)
+(get-model)
 

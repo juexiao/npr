@@ -48,6 +48,7 @@ public:
   double getLB() const { return _lower_bound; }
 
   std::string getExpr() const;
+  std::string getExpr2() const;
 
 
 private:
@@ -88,14 +89,24 @@ public:
     _var2(var2),
     _var3(var3) {}
 
+
+  SmtExpression(std::string oper, std::string var1, std::string var2, std::string var3, std::string var4) :
+    _operator(oper),
+    _var1(var1),
+    _var2(var2),
+    _var3(var3),
+    _var4(var4) {}
+
   std::string getExprTwo();
   std::string getExprThree();
+  std::string getExprFour();
 
 private:
   std::string _operator;
   std::string _var1;
   std::string _var2;
   std::string _var3;
+  std::string _var4;
 
 };
 
@@ -109,6 +120,8 @@ public:
   virtual void init() = 0;
   virtual std::string getFuncDecl() const = 0;
   virtual std::string getFuncExpr(const CoverTable& cov) const = 0;
+
+  virtual std::string getFuncExpr(const CoverTable& cov, std::string expr) const;
 protected:
   std::string _name;
 };
@@ -164,18 +177,22 @@ public:
 
 
   void initFunction(std::string filename);
+  void initFunction2(std::string filename);
   void writeSmt(std::string filename);
 
   
 private:
 
   void initVars(unsigned var_num);
+  void initBinVars(unsigned var_num);
   void initFunctions();
   void initAsserts();
+  void initAsserts2();
 
   std::string padStr(std::string orig, size_t n);
 
   std::vector<SmtVar*> _vars;
+  std::vector<SmtVar*> _bin_vars;
   std::vector<SmtFunction*> _funcs;
   std::vector<std::string> _asserts;
   TruthTable* _truth_table;

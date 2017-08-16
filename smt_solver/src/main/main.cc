@@ -21,8 +21,14 @@
 
 int main(int argc, char** argv) {
 
-  TruthTableGenerator generator(3);
+  //TruthTableGenerator generator(3);
+  //generator.generateAllTruthTable();
+  //
+  TruthTableGenerator generator(2);
   generator.generateAllTruthTable();
+
+
+
 
 
   return 0;

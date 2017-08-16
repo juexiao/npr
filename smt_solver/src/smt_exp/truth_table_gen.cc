@@ -59,7 +59,7 @@ void TruthTableGenerator::generateAllTruthTable() {
     outfile.close();
 
     SmtWriter smt_writer;
-    smt_writer.initFunction(outfilename);
+    smt_writer.initFunction2(outfilename);
     smt_writer.writeSmt(outfilename + ".smt2");
 
 
@@ -69,6 +69,11 @@ void TruthTableGenerator::generateAllTruthTable() {
     smt_mgr.writeEnergyLandscape(outfilename + ".energy");
 
   }
+
+  std::vector<int> lut(0,4);
+  SmtManager smt_mgr(_path+"/bak.smt2", lut);
+  //smt_mgr.AnalyzeEnergy();
+  smt_mgr.writeEnergyLandscape("bak.energy");
 
   result_file.close();
 

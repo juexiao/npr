@@ -11,13 +11,33 @@
 #include <sstream>
 #include <fstream>
 #include <cassert>
+#include <algorithm>
 
 #include "smt_exp/smt_solver.hh"
 #include "smt_exp/bin_iterator.hh"
+#include "smt_exp/assist2.hh"
+#include "smt_exp/assist3.hh"
 
 #define BUF_SIZE 256
 
 #define DASSERT(X) assert(X)
+
+std::string SmtFunction::getFuncExpr(const CoverTable& cov, std::string expr) const {
+  DASSERT(cov.size() == 3);
+  std::stringstream ss;
+  ss << "(" << _name;
+
+  for (size_t i = 0; i < cov.size()-1; ++i) {
+    DASSERT(cov[i]==1 || cov[i]==-1);
+    ss << " " << cov[i];
+  }
+  ss << " " << cov[cov.size()-1];
+  ss << " " << expr;
+  ss << ")";
+
+
+  return ss.str();
+}
 
 
 CoverTable::CoverTable(std::string input) {
@@ -68,12 +88,31 @@ std::string SmtVar::getExpr() const {
   return ss.str();
 }
 
+std::string SmtVar::getExpr2() const {
+
+  std::stringstream ss;
+  //1) head
+  ss << "(declare-const " << _name << " " << _data_type << ")" << std::endl;
+
+  //2) range
+  ss << "(assert (or (= " << _name << " " << (int)_upper_bound << ") (= " << _name << " " << (int)_lower_bound  << ") ) )" << std::endl;
+
+  return ss.str();
+}
+
+
+
 std::string SmtExpression::getExprTwo() {
   return "(" + _operator + " " + _var1 + " " + _var2 + ")";
 }
 
 std::string SmtExpression::getExprThree() {
   return "(" + _operator + " " + _var1 + " " + _var2 + " " + _var3 + ")";
+}
+
+
+std::string SmtExpression::getExprFour() {
+  return "(" + _operator + " " + _var1 + " " + _var2 + " " + _var3 + " " + _var4 + ")";
 }
 
 
@@ -229,6 +268,29 @@ void SmtWriter::initFunction(std::string filename) {
 
 }
 
+void SmtWriter::initFunction2(std::string filename) {
+
+  _truth_table = new TruthTable;
+  _truth_table->loadTruthTable(filename);
+
+  initVars(4);
+  initBinVars(8);
+
+  SmtFunction* func = new IsingFourFunc("ising4");
+  func->init();
+  _funcs.push_back(func);
+
+  SmtFunction* assst = new Assist3("assist");
+  assst->init();
+  _funcs.push_back(assst);
+
+
+  initAsserts2();
+
+}
+
+
+
 void SmtWriter::initVars(unsigned var_num) {
 
   for (size_t i = 1; i <= var_num; ++i) {
@@ -242,6 +304,77 @@ void SmtWriter::initVars(unsigned var_num) {
       std::string var = "b" + std::to_string(i) + std::to_string(j);
       SmtVar* smt_var = new SmtVar("Real", 1.0, -1.0, var);
       _vars.push_back(smt_var);
+    }
+  }
+
+}
+
+void SmtWriter::initBinVars(unsigned var_num) {
+  for (size_t i = 1; i <= var_num; ++i) {
+    std::string var = "c" + std::to_string(i);
+    SmtVar* smt_var = new SmtVar("Int", 1, -1, var);
+    _bin_vars.push_back(smt_var);
+  }
+}
+
+void SmtWriter::initAsserts2() {
+
+  //1) all valid 
+  {
+    std::stringstream ss;
+    ss << "(assert (=";
+    TruthTable::covertable_const_iter c_iter = _truth_table->begin();
+    for (; c_iter != _truth_table->end(); ++c_iter) {
+      ss << " " <<  _funcs[0]->getFuncExpr(*c_iter, 
+          _funcs[1]->getFuncExpr(*c_iter)) ;
+    }
+    ss << ") )" << std::endl;
+    _asserts.push_back(ss.str());
+  }
+
+  //2) partial valid
+  {
+    BinIterator bin_iter(4);
+    for (; !bin_iter.end(); ++bin_iter) {
+      std::vector<int> vals = bin_iter.value();
+      std::vector<int> new_vals;
+      new_vals.resize(3);
+      std::copy(vals.begin(), vals.end(), new_vals.begin());
+      CoverTable cov(new_vals);
+      CoverTable cov_old(vals);
+      if (!_truth_table->isValid(cov.toString())) continue;
+
+      std::stringstream ss;
+      ss << "(assert (<=";
+      ss << " " << _funcs[0]->getFuncExpr(*(_truth_table->begin()), 
+                   _funcs[1]->getFuncExpr(*(_truth_table->begin())));
+      ss << " " << _funcs[0]->getFuncExpr(cov_old);
+      ss << ") )" << std::endl;
+      _asserts.push_back(ss.str());
+
+    }
+  }
+
+  //3) non valid
+  {
+    BinIterator bin_iter(4);
+    for (; !bin_iter.end(); ++bin_iter) {
+      std::vector<int> vals = bin_iter.value();
+      std::vector<int> new_vals;
+      new_vals.resize(3);
+      std::copy(vals.begin(), vals.end(), new_vals.begin());
+      CoverTable cov(new_vals);
+      CoverTable cov_old(vals);
+      if (_truth_table->isValid(cov.toString())) continue;
+
+      std::stringstream ss;
+      ss << "(assert (<";
+      ss << " " << _funcs[0]->getFuncExpr(*(_truth_table->begin()), 
+                   _funcs[1]->getFuncExpr(*(_truth_table->begin())));
+      ss << " " << _funcs[0]->getFuncExpr(cov_old);
+      ss << ") )" << std::endl;
+      _asserts.push_back(ss.str());
+
     }
   }
 
@@ -290,6 +423,13 @@ void SmtWriter::writeSmt(std::string filename) {
   std::vector<SmtVar*>::iterator var_iter = _vars.begin();
   for (; var_iter != _vars.end(); ++var_iter) {
     outfile << (*var_iter)->getExpr();
+  }
+  outfile << std::endl;
+
+
+  std::vector<SmtVar*>::iterator var_b_iter = _bin_vars.begin();
+  for (; var_b_iter != _bin_vars.end(); ++var_b_iter) {
+    outfile << (*var_b_iter)->getExpr2();
   }
   outfile << std::endl;
 
