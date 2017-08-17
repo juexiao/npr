@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <set>
 #include <cassert>
+#include <map>
 #include <fstream>
 #include <z3++.h>
 
@@ -62,10 +63,10 @@ std::string SmtManager::AnalyzeEnergy() {
 
       s_val << m[i].name();
       s_val_name << m.get_const_interp(m[i]);
-      std::cout << s_val_name.str() << " " << s_val.str() << std::endl;
+      //std::cout << s_val_name.str() << " " << s_val.str() << std::endl;
       setParam(s_val.str(), s_val_name.str());
     }
-    std::cout << std::endl;
+    //std::cout << std::endl;
     findGap();
     ss << "sat," << _gap;
   }
@@ -181,13 +182,21 @@ void SmtManager::writeEnergyLandscape(const std::string& outfile) {
   outf.open(outfile.c_str());
   BinIterator inputs(4);
   std::vector<double> energies;
+  std::map<std::string, std::vector<int> > remap_input;
   for (; !inputs.end(); ++inputs) { 
-    for (unsigned i = 0; i < inputs.value().size(); ++i)
-      outf << inputs.value()[i];
+    remap_input.insert(std::make_pair(inputs.str(), inputs.value()));
+  }
+  std::map<std::string, std::vector<int> >::iterator m_iter = remap_input.begin();
+  for (; m_iter != remap_input.end(); ++m_iter) {
+
+    std::vector<int> val = m_iter->second;
+    for (unsigned i = 0; i < val.size(); ++i)
+      outf << val[i];
     outf << " "; 
-    outf << evalEnergy(inputs.value()) ;
+    outf << evalEnergy(val) ;
     outf << std::endl;
   }
+
   outf.close();
 
 

@@ -31,39 +31,64 @@ public:
 
 };
 
-class SmtVar {
+class SmtVarBase {
+
+public:
+
+  SmtVarBase(std::string data_type, std::string name) :
+    _data_type(data_type),
+    _name(name) {}
+
+  virtual ~SmtVarBase() {}
+
+
+  std::string getType() const { return _data_type; }
+  std::string getName() const { return _name; }
+
+  virtual std::string getExpr() const = 0;
+
+protected:
+  std::string _name;
+  std::string _data_type;
+
+};
+
+class SmtVar : public SmtVarBase {
 
 public:
 
   SmtVar(std::string data_type, double upper, double lower, std::string name) :
-    _data_type(data_type),
+    SmtVarBase(data_type, name),
     _upper_bound(upper),
-    _lower_bound(lower),
-    _name(name) {}
+    _lower_bound(lower)
+  {}
 
-  std::string getType() const { return _data_type; }
-  std::string getName() const { return _name;}
 
   double getUB() const { return _upper_bound; }
   double getLB() const { return _lower_bound; }
 
-  std::string getExpr() const;
+  virtual std::string getExpr() const;
   std::string getExpr2() const;
 
 
 private:
 
-    //smt data type
-    std::string _data_type;
 
     //smt data range
     double _upper_bound;
     double _lower_bound;
+};
 
-    //smt data var name
-    std::string _name;
+class SmtVarUn : public SmtVarBase {
+
+public:
+  SmtVarUn(std::string data_type, std::string name) :
+    SmtVarBase(data_type, name) {}
+
+  virtual std::string getExpr() const;
 
 };
+
 
 class SmtInput {
 
@@ -169,33 +194,63 @@ private:
 
 };
 
-class SmtWriter {
+class SmtWriterBase {
 
 public:
-  SmtWriter() : _truth_table(NULL) {}
-  ~SmtWriter();
+  SmtWriterBase() : _truth_table(NULL) {}
+
+  SmtWriterBase(TruthTable* truth_table) :
+    _truth_table(truth_table) {}
+
+  virtual ~SmtWriterBase();
 
 
-  void initFunction(std::string filename);
+protected:
+  std::string padStr(std::string orig, size_t n);
+  std::vector<SmtVarBase*> _vars;
+  std::vector<SmtFunction*> _funcs;
+  std::vector<std::string> _asserts;
+  TruthTable* _truth_table;
+
+
+};
+
+class SmtWriter : public SmtWriterBase {
+
+public:
+  SmtWriter() {}
+  virtual ~SmtWriter();
+
+
+  virtual void initFunction(std::string filename);
   void initFunction2(std::string filename);
-  void writeSmt(std::string filename);
+  virtual void writeSmt(std::string filename);
+  virtual void initAsserts();
 
-  
 private:
 
   void initVars(unsigned var_num);
   void initBinVars(unsigned var_num);
-  void initFunctions();
-  void initAsserts();
   void initAsserts2();
 
-  std::string padStr(std::string orig, size_t n);
 
-  std::vector<SmtVar*> _vars;
   std::vector<SmtVar*> _bin_vars;
-  std::vector<SmtFunction*> _funcs;
-  std::vector<std::string> _asserts;
-  TruthTable* _truth_table;
+
+};
+
+
+class SmtWriterAdv : public SmtWriterBase {
+
+public:
+  SmtWriterAdv(std::string topo_file, TruthTable* truth_table) :
+    SmtWriterBase(truth_table), _topo_file(topo_file) {}
+
+  void initSmt();
+  virtual void writeSmt(std::string filename);
+
+private:
+
+  std::string _topo_file;
 
 };
 

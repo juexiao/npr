@@ -28,6 +28,8 @@
 (declare-const b34 Real)
 (assert (<= b34 1))
 (assert (>= b34 -1))
+(declare-const g Real)
+(declare-const k Real)
 
 (declare-const c1 Int)
 (assert (or (= c1 1) (= c1 -1) ) )
@@ -55,6 +57,7 @@
 
 
 (assert (= (ising4 -1 -1 1 (assist15 -1 -1 1)) (ising4 1 -1 1 (assist15 1 -1 1)) (ising4 -1 1 1 (assist15 -1 1 1)) (ising4 1 1 1 (assist15 1 1 1))) )
+(assert (= g (ising4 -1 -1 1 (assist15 -1 -1 1))) )
 (assert (<= (ising4 -1 -1 1 (assist15 -1 -1 1)) (ising4 -1 -1 1 -1)) )
 (assert (<= (ising4 -1 -1 1 (assist15 -1 -1 1)) (ising4 1 -1 1 -1)) )
 (assert (<= (ising4 -1 -1 1 (assist15 -1 -1 1)) (ising4 -1 1 1 -1)) )
@@ -63,12 +66,13 @@
 (assert (<= (ising4 -1 -1 1 (assist15 -1 -1 1)) (ising4 1 -1 1 1)) )
 (assert (<= (ising4 -1 -1 1 (assist15 -1 -1 1)) (ising4 -1 1 1 1)) )
 (assert (<= (ising4 -1 -1 1 (assist15 -1 -1 1)) (ising4 1 1 1 1)) )
-(assert (< (ising4 -1 -1 1 (assist15 -1 -1 1)) (ising4 -1 -1 -1 -1)) )
-(assert (< (ising4 -1 -1 1 (assist15 -1 -1 1)) (ising4 1 -1 -1 -1)) )
-(assert (< (ising4 -1 -1 1 (assist15 -1 -1 1)) (ising4 -1 1 -1 -1)) )
-(assert (< (ising4 -1 -1 1 (assist15 -1 -1 1)) (ising4 1 1 -1 -1)) )
-(assert (< (ising4 -1 -1 1 (assist15 -1 -1 1)) (ising4 -1 -1 -1 1)) )
-(assert (< (ising4 -1 -1 1 (assist15 -1 -1 1)) (ising4 1 -1 -1 1)) )
-(assert (< (ising4 -1 -1 1 (assist15 -1 -1 1)) (ising4 -1 1 -1 1)) )
-(assert (< (ising4 -1 -1 1 (assist15 -1 -1 1)) (ising4 1 1 -1 1)) )
+(assert (< k (ising4 -1 -1 -1 -1)) )
+(assert (< k (ising4 1 -1 -1 -1)) )
+(assert (< k (ising4 -1 1 -1 -1)) )
+(assert (< k (ising4 1 1 -1 -1)) )
+(assert (< k (ising4 -1 -1 -1 1)) )
+(assert (< k (ising4 1 -1 -1 1)) )
+(assert (< k (ising4 -1 1 -1 1)) )
+(assert (< k (ising4 1 1 -1 1)) )
+(assert (< 3.99 (- k g)))
 

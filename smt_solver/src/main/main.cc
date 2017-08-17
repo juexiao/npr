@@ -14,18 +14,23 @@
 #include <cstdio>
 #include <iostream>
 #include <string>
+
 #include "smt_exp/smt_solver.hh"
 #include "smt_exp/truth_table_gen.hh"
+#include "hw_tgt/tgt_writer.hh"
 
 
 
 int main(int argc, char** argv) {
 
-  //TruthTableGenerator generator(3);
+
+  TGT_Graph graph;
+  graph.initChimeraGraph();
+  graph.buildPtree();
+  graph.writeJson("k44.chimera");
+  
+  //TruthTableGenerator generator(2);
   //generator.generateAllTruthTable();
-  //
-  TruthTableGenerator generator(2);
-  generator.generateAllTruthTable();
 
 
 

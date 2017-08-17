@@ -13,6 +13,7 @@
 #include <string>
 #include <cassert>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 class BinIterator {
@@ -58,6 +59,14 @@ public:
       result.push_back(bin_[(unsigned long)i] - '0') ;
     }
     return result ;
+  }
+
+  std::string str() { 
+    std::stringstream ss;
+    const std::vector<int>& val = value();
+    for (unsigned i = 0; i < val.size(); ++i)
+      ss << val[i];
+    return ss.str();
   }
 
 

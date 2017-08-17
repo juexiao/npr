@@ -17,7 +17,7 @@ endif
 TARGET_EXE = $(BIN_DIR)/$(TARGET_NAME)
 
 #the sequence must be follow below
-LIB_SRCS = smt_exp
+LIB_SRCS = smt_exp hw_tgt
 #LIB_SRCS = tcl syn
 
 IN_LIB_SRCS =  $(strip $(LIB_SRCS))

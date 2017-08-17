@@ -14,15 +14,17 @@ CFLAG		= -c
 LFLAG       = 
 LFLAG2      = 
 
-APP_NAME = smt-solver
-APP_DEBUG_NAME = smt-solver-debug
-APP_TEST_NAME = smt-solver-test
-APP_GPROF_NAME = smt-solver-gprof
+APP_NAME = qSat
+APP_DEBUG_NAME = qSat-debug
+APP_TEST_NAME = qSat-test
+APP_GPROF_NAME = qSat-gprof
 
 #for report build time
 #TIME = `date`
 TIME = `date +%Y-%m-%d" "%H:%M:%S`
 TIME_FILE = time
+
+BUILT_BY = `whoami`
 
 #SVNVERSION = `svn info|grep Revision|awk  '{print $2}'`
 #SVNVERSION = `cat ".svn/entries" | head -n 4 | tail -n 1`
@@ -52,18 +54,18 @@ endif
 ifeq ($(MODULE_NAME),gui)
   ifeq ($(LBITS),64)
     #CFLAG  += -ansi -pedantic -Wall -Wno-unused-variable -Wno-reorder -W -Wcast-qual -Wwrite-strings -std=c++0x -mcmodel=medium
-    CFLAG  += -ansi -pedantic -Wall -Wno-unused-variable -Wno-reorder -W -Wcast-qual -Wwrite-strings -std=c++11 -mcmodel=medium
+    CFLAG  += -ansi -pedantic -Werror -Wno-unused-variable -Wno-error=conversion -Wno-reorder -Wall -Wconversion -Wcast-qual -Wwrite-strings -std=c++11 -mcmodel=medium
   else
 #CFLAG  += -ansi -pedantic -Wall -Wno-unused-variable -Wno-reorder -W -Wcast-qual -Wwrite-strings -std=c++0x
-    CFLAG  += -ansi -pedantic -Wall -Wno-unused-variable -Wno-reorder -W -Wcast-qual -Wwrite-strings -std=c++11
+    CFLAG  += -ansi -pedantic -Werror -Wno-unused-variable -Wno-error=conversion -Wno-reorder -Wall -Wconversion -Wcast-qual -Wwrite-strings -std=c++11
   endif
 else 
   ifeq ($(LBITS),64)
 #CFLAG += -ansi -pedantic -Wall -Wno-reorder -W -Wconversion -Wcast-qual -Wwrite-strings -std=c++0x -mcmodel=medium
-    CFLAG += -ansi -pedantic -Wall -Wno-reorder -W -Wconversion -Wcast-qual -Wwrite-strings -std=c++11 -mcmodel=medium
+    CFLAG += -ansi -pedantic -Werror -Wno-reorder -Wall -Wno-error=conversion -Wcast-qual -Wwrite-strings -Wconversion -std=c++11 -mcmodel=medium
   else
 #CFLAG += -ansi -pedantic -Wall -Wno-reorder -W -Wconversion -Wcast-qual -Wwrite-strings -std=c++0x
-    CFLAG += -ansi -pedantic -Wall -Wno-reorder -W -Wconversion -Wcast-qual -Wwrite-strings -std=c++11
+    CFLAG += -ansi -pedantic -Werror -Wno-reorder -Wall -Wno-error=conversion -Wcast-qual -Wwrite-strings -Wconversion -std=c++11
   endif
 endif
 
@@ -93,7 +95,8 @@ USER_INC = -I$(ROOT)/include -I$(ROOT)/include/c++
 QT_DIR = /usr/local/Trolltech/Qt-4.8.6/include
 QT_INC = -I$(QT_DIR)/QtCore -I$(QT_DIR)/QtGui -I$(QT_DIR) -I$(QT_DIR)/QtOpenGL -I$(QT_DIR)/QtSvg
 
-SYS_LIB = -L/usr/lib/ -ltcl8.4 -lrt -ldl -lz3
+SYS_LIB = -L/usr/lib/ -ltcl8.4 -lrt -ldl
+BOOST_LIB = 
 
 #OA_LIB_DIR = ${OA_DIR}/lib/${PLATFORM}/optMT 
 #OA_LIB = -L$(OA_LIB_DIR) -loaTech -loaDesign -loaCommon -loaDM -loaBase -loaPlugIn
@@ -118,8 +121,8 @@ REFERENCE_INC = -I$(ROOT)/reference/readline/inc \
                 -I$(ROOT)/reference/liberty_parser/inc \
                 -I$(ROOT)/reference/sapi
 
-REFERENCE_LIB = -L$(ROOT)/reference/readline/lib$(LBITS) -lreadline -lhistory -ltermcap 
-#                -L$(ROOT)/reference/sapi -ldwave_sapi
+REFERENCE_LIB = -L$(ROOT)/reference/readline/lib$(LBITS) -lreadline -lhistory -ltermcap
+#               -L$(ROOT)/reference/sapi -ldwave_sapi
 #                -L$(ROOT)/reference/liberty_parser/lib$(LBITS) -lsi2dr_liberty
 
 ifneq ($(NOGUI), )

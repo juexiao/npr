@@ -1,0 +1,110 @@
+{
+    "Nodes": [
+        {
+            "Name": "a0"
+        },
+        {
+            "Name": "a1"
+        },
+        {
+            "Name": "a2"
+        },
+        {
+            "Name": "a3"
+        },
+        {
+            "Name": "a4"
+        },
+        {
+            "Name": "a5"
+        },
+        {
+            "Name": "a6"
+        },
+        {
+            "Name": "a7"
+        }
+    ],
+    "Edges": [
+        {
+            "Name": "b04",
+            "Node0": "a0",
+            "Node1": "a4"
+        },
+        {
+            "Name": "b05",
+            "Node0": "a0",
+            "Node1": "a5"
+        },
+        {
+            "Name": "b06",
+            "Node0": "a0",
+            "Node1": "a6"
+        },
+        {
+            "Name": "b07",
+            "Node0": "a0",
+            "Node1": "a7"
+        },
+        {
+            "Name": "b14",
+            "Node0": "a1",
+            "Node1": "a4"
+        },
+        {
+            "Name": "b15",
+            "Node0": "a1",
+            "Node1": "a5"
+        },
+        {
+            "Name": "b16",
+            "Node0": "a1",
+            "Node1": "a6"
+        },
+        {
+            "Name": "b17",
+            "Node0": "a1",
+            "Node1": "a7"
+        },
+        {
+            "Name": "b24",
+            "Node0": "a2",
+            "Node1": "a4"
+        },
+        {
+            "Name": "b25",
+            "Node0": "a2",
+            "Node1": "a5"
+        },
+        {
+            "Name": "b26",
+            "Node0": "a2",
+            "Node1": "a6"
+        },
+        {
+            "Name": "b27",
+            "Node0": "a2",
+            "Node1": "a7"
+        },
+        {
+            "Name": "b34",
+            "Node0": "a3",
+            "Node1": "a4"
+        },
+        {
+            "Name": "b35",
+            "Node0": "a3",
+            "Node1": "a5"
+        },
+        {
+            "Name": "b36",
+            "Node0": "a3",
+            "Node1": "a6"
+        },
+        {
+            "Name": "b37",
+            "Node0": "a3",
+            "Node1": "a7"
+        }
+    ]
+}

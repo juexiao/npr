@@ -100,6 +100,11 @@ std::string SmtVar::getExpr2() const {
   return ss.str();
 }
 
+std::string SmtVarUn::getExpr() const {
+  std::stringstream ss;
+  ss << "(declare-const " << _name << " " << _data_type << ")" << std::endl;
+  return ss.str();
+}
 
 
 std::string SmtExpression::getExprTwo() {
@@ -243,13 +248,11 @@ void TruthTable::loadTruthTable(std::string file) {
 }
 
 SmtWriter::~SmtWriter() {
-  for (size_t i = 0; i < _vars.size(); ++i)
-    delete _vars[i];
+  for (size_t i = 0; i < _bin_vars.size(); ++i)
+    delete _bin_vars[i];
 
-  for (size_t i = 0; i < _funcs.size(); ++i)
-    delete _funcs[i];
+  _bin_vars.clear();
 
-  delete _truth_table;
 }
 
 void SmtWriter::initFunction(std::string filename) {
@@ -315,6 +318,17 @@ void SmtWriter::initBinVars(unsigned var_num) {
     SmtVar* smt_var = new SmtVar("Int", 1, -1, var);
     _bin_vars.push_back(smt_var);
   }
+
+  {
+    SmtVarUn* smt_var = new SmtVarUn("Real", "g");
+    _vars.push_back(smt_var);
+  }
+
+  {
+    SmtVarUn* smt_var = new SmtVarUn("Real", "k");
+    _vars.push_back(smt_var);
+  }
+
 }
 
 void SmtWriter::initAsserts2() {
@@ -331,6 +345,17 @@ void SmtWriter::initAsserts2() {
     ss << ") )" << std::endl;
     _asserts.push_back(ss.str());
   }
+
+  {
+    std::stringstream ss;
+    ss << "(assert (= g ";
+    TruthTable::covertable_const_iter c_iter = _truth_table->begin();
+    ss <<  _funcs[0]->getFuncExpr(*c_iter, _funcs[1]->getFuncExpr(*c_iter));
+    ss << ") )" << std::endl;
+    _asserts.push_back(ss.str());
+  }
+
+
 
   //2) partial valid
   {
@@ -369,13 +394,19 @@ void SmtWriter::initAsserts2() {
 
       std::stringstream ss;
       ss << "(assert (<";
-      ss << " " << _funcs[0]->getFuncExpr(*(_truth_table->begin()), 
-                   _funcs[1]->getFuncExpr(*(_truth_table->begin())));
+      ss << " k"; 
       ss << " " << _funcs[0]->getFuncExpr(cov_old);
       ss << ") )" << std::endl;
       _asserts.push_back(ss.str());
 
     }
+  }
+
+  //4)
+  {
+    std::stringstream ss;
+    ss << "(assert (< 3.99 (- k g)))" << std::endl;;
+      _asserts.push_back(ss.str());
   }
 
 }
@@ -420,7 +451,7 @@ void SmtWriter::writeSmt(std::string filename) {
   std::ofstream outfile;
   outfile.open(filename.c_str());
 
-  std::vector<SmtVar*>::iterator var_iter = _vars.begin();
+  std::vector<SmtVarBase*>::iterator var_iter = _vars.begin();
   for (; var_iter != _vars.end(); ++var_iter) {
     outfile << (*var_iter)->getExpr();
   }
@@ -447,6 +478,16 @@ void SmtWriter::writeSmt(std::string filename) {
   //outfile << "(get-model)" << std::endl;
 
   outfile.close();
+}
+
+SmtWriterBase::~SmtWriterBase() {
+  for (size_t i = 0; i < _vars.size(); ++i)
+    delete _vars[i];
+
+  for (size_t i = 0; i < _funcs.size(); ++i)
+    delete _funcs[i];
+
+  delete _truth_table;
 }
 
 
