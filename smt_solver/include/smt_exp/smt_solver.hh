@@ -29,6 +29,7 @@ public:
   std::string toString() const;
 
 
+
 };
 
 class SmtVarBase {
@@ -126,6 +127,8 @@ public:
   std::string getExprThree();
   std::string getExprFour();
 
+  std::string getExpr();
+
 private:
   std::string _operator;
   std::string _var1;
@@ -176,6 +179,9 @@ private:
 class TruthTable {
 
 public:
+
+  TruthTable() : _input_num(0) {}
+
   typedef std::vector<CoverTable>::iterator covertable_iter;
   typedef std::vector<CoverTable>::const_iterator covertable_const_iter;
 
@@ -188,16 +194,22 @@ public:
 
   bool isValid(std::string stri) const { return  _valid_str.count(stri); }
 
+  int getInputNum() const { return _input_num; }
+
 private:
   std::vector<CoverTable> _valid;
   std::unordered_set<std::string> _valid_str;
+
+  void sanityCheck();
+
+  int _input_num;
 
 };
 
 class SmtWriterBase {
 
 public:
-  SmtWriterBase() : _truth_table(NULL) {}
+  //SmtWriterBase() : _truth_table(NULL) {}
 
   SmtWriterBase(TruthTable* truth_table) :
     _truth_table(truth_table) {}
@@ -218,7 +230,7 @@ protected:
 class SmtWriter : public SmtWriterBase {
 
 public:
-  SmtWriter() {}
+  SmtWriter() : SmtWriterBase(NULL) {}
   virtual ~SmtWriter();
 
 

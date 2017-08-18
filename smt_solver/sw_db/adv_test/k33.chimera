@@ -1,0 +1,81 @@
+{
+    "Nodes": [
+        {
+            "Name": "a0",
+            "Assign": "0",
+            "Index": "0"
+        },
+        {
+            "Name": "a1",
+            "Assign": "1",
+            "Index": "1"
+        },
+        {
+            "Name": "a2",
+            "Assign": "2",
+            "Index": "2"
+        },
+        {
+            "Name": "a3",
+            "Assign": "-1",
+            "Index": "3"
+        },
+        {
+            "Name": "a4",
+            "Assign": "-1",
+            "Index": "4"
+        },
+        {
+            "Name": "a5",
+            "Assign": "-1",
+            "Index": "5"
+        }
+    ],
+    "Edges": [
+        {
+            "Name": "b03",
+            "Node0": "a0",
+            "Node1": "a3"
+        },
+        {
+            "Name": "b04",
+            "Node0": "a0",
+            "Node1": "a4"
+        },
+        {
+            "Name": "b05",
+            "Node0": "a0",
+            "Node1": "a5"
+        },
+        {
+            "Name": "b13",
+            "Node0": "a1",
+            "Node1": "a3"
+        },
+        {
+            "Name": "b14",
+            "Node0": "a1",
+            "Node1": "a4"
+        },
+        {
+            "Name": "b15",
+            "Node0": "a1",
+            "Node1": "a5"
+        },
+        {
+            "Name": "b23",
+            "Node0": "a2",
+            "Node1": "a3"
+        },
+        {
+            "Name": "b24",
+            "Node0": "a2",
+            "Node1": "a4"
+        },
+        {
+            "Name": "b25",
+            "Node0": "a2",
+            "Node1": "a5"
+        }
+    ]
+}

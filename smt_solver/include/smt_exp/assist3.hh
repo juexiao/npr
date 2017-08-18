@@ -54,8 +54,10 @@ private:
 class AssistX : public SmtFunction {
 
 public:
-  AssistX(std::string name, unsigned input_num) : SmtFunction(name),
-  _input_num(input_num) {}
+  AssistX(std::string name, unsigned input_num, unsigned var_count) : 
+    SmtFunction(name),
+  _input_num(input_num),
+  _var_counter(var_count) {}
 
   virtual ~AssistX();
   virtual std::string getFuncDecl() const;
@@ -68,10 +70,13 @@ private:
   void initExprs();
 
   unsigned _input_num;
+  unsigned _var_counter;
 
   std::vector<SmtExpression*> _expressions;
   std::vector<SmtInput*> _inputs;
   std::string _return_type;
+
+
 
 };
 

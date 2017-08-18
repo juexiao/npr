@@ -2,17 +2,17 @@
     "Nodes": [
         {
             "Name": "a0",
-            "Assign": "-1",
+            "Assign": "0",
             "Index": "0"
         },
         {
             "Name": "a1",
-            "Assign": "-1",
+            "Assign": "1",
             "Index": "1"
         },
         {
             "Name": "a2",
-            "Assign": "-1",
+            "Assign": "2",
             "Index": "2"
         },
         {

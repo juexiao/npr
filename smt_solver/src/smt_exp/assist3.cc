@@ -123,7 +123,7 @@ void AssistX::init() {
 }
 
 void AssistX::initInputs() {
-  for (unsigned i = 1; i <= _input_num; ++i) {
+  for (unsigned i = 0; i < _input_num; ++i) {
     SmtInput* new_input = new SmtInput("q" + std::to_string(i), "Real");
     _inputs.push_back(new_input);
   }
@@ -132,7 +132,7 @@ void AssistX::initInputs() {
 void AssistX::initExprs() {
 
   BinIterator bin(_input_num);
-  int counter = 0;
+  unsigned counter = _var_counter;
   for (; !bin.end(); ++bin, ++counter) {
     std::vector<int> value = bin.value();
     std::vector<std::string> exps;
@@ -143,7 +143,7 @@ void AssistX::initExprs() {
       exps.push_back(exp1);
     }
 
-    SmtExpression* smt_exp = new SmtExpression("*", "c" + std::to_string(counter+1), exps[0], exps[1], exps[2]);
+    SmtExpression* smt_exp = new SmtExpression("*", "c" + std::to_string(counter), exps[0], exps[1], exps[2]);
     _expressions.push_back(smt_exp);
   }
 

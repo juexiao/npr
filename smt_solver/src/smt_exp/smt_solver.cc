@@ -120,6 +120,15 @@ std::string SmtExpression::getExprFour() {
   return "(" + _operator + " " + _var1 + " " + _var2 + " " + _var3 + " " + _var4 + ")";
 }
 
+std::string SmtExpression::getExpr() {
+  if (_var3 == "" && _var4 == "")
+    return getExprTwo();
+  else if (_var4 == "")
+    return getExprThree();
+  assert(0);
+  return "";
+}
+
 
 IsingFourFunc::~IsingFourFunc() {
 
@@ -216,6 +225,15 @@ std::string IsingFourFunc::getFuncExpr(const CoverTable& cov) const {
 
 }
 
+void TruthTable::sanityCheck() {
+  _input_num = 0;
+  if (_valid.size() == 0) return;
+
+  _input_num = (int)_valid[0].size()-1;
+
+  for (size_t i = 0; i < _valid.size(); ++i)
+    assert(_input_num == (int)_valid[i].size()-1);
+}
 
 void TruthTable::loadTruthTable(std::string file) {
   std::ifstream infile;
@@ -245,6 +263,7 @@ void TruthTable::loadTruthTable(std::string file) {
   }
 
   infile.close();
+  sanityCheck();
 }
 
 SmtWriter::~SmtWriter() {
@@ -487,7 +506,7 @@ SmtWriterBase::~SmtWriterBase() {
   for (size_t i = 0; i < _funcs.size(); ++i)
     delete _funcs[i];
 
-  delete _truth_table;
+  //delete _truth_table;
 }
 
 

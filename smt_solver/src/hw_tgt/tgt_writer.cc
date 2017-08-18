@@ -42,10 +42,32 @@ void TGT_Graph::clear() {
 
 }
 
+void TGT_Graph::initChimeraGraph33() {
+
+  for (unsigned i = 0; i < 6; ++i) {
+    TGT_Node* node = new TGT_Node("a" + std::to_string(i), i, -1);
+    _nodes.insert(std::make_pair(node->getName(), node));
+  }
+
+  for (unsigned i = 0; i < 3; ++i) {
+    for (unsigned j = 0; j < 3; ++j) {
+      TGT_Edge* edge = new TGT_Edge(
+          _nodes.at("a"+std::to_string(i)), 
+          _nodes.at("a"+std::to_string(3+j)), 
+          "b" + std::to_string(i) + std::to_string(3+j));
+
+      _edges.push_back(edge);
+    }
+  }
+}
+
+
+
+
 void TGT_Graph::initChimeraGraph() {
 
   for (unsigned i = 0; i < 8; ++i) {
-    TGT_Node* node = new TGT_Node("a" + std::to_string(i));
+    TGT_Node* node = new TGT_Node("a" + std::to_string(i), i, -1);
     _nodes.insert(std::make_pair(node->getName(), node));
   }
 
@@ -69,6 +91,8 @@ void TGT_Graph::buildPtree() {
   for (; n_iter != _nodes.end(); ++n_iter) {
     ptree node;
     node.put("Name", n_iter->second->getName());
+    node.put("Assign", n_iter->second->getAssign());
+    node.put("Index", n_iter->second->getIndex());
     nodes.push_back(std::make_pair("", node));
   }
 
@@ -107,7 +131,9 @@ void TGT_Graph::loadJson(std::string filename) {
     ptree::const_iterator p_iter = nodes.begin();
     for (; p_iter != nodes.end(); ++p_iter) {
       const ptree& node = p_iter->second;
-      TGT_Node* node_p = new TGT_Node(node.get<std::string>("Name"));
+      TGT_Node* node_p = new TGT_Node(node.get<std::string>("Name"), 
+          node.get<unsigned>("Index"),
+          node.get<int>("Assign"));
       _nodes.insert(std::make_pair(node_p->getName(), node_p));
     }
   }
