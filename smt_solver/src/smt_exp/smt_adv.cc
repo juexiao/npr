@@ -101,7 +101,7 @@ void SmtAdvWriter::initAsserts() {
       std::vector<int> vals = bin_iter.value();
       assert(vals.size() == _input_assign.size());
       std::vector<int> new_vals;
-      new_vals.resize(_func->getAssistNum());
+      new_vals.resize(_func->getNonAssistNum());
       for (size_t i = 0; i < vals.size(); ++i) {
         if (_input_assign[i] != -1)
           new_vals[(unsigned)_input_assign[i]] = vals[i];

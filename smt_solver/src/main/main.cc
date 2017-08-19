@@ -51,7 +51,7 @@ void test_one_truth_table_with_topo() {
   truthtable.loadTruthTable("and");
   TGT_Graph graph;
   //graph.loadJson("k44.chimera");
-  graph.loadJson("k33.chimera");
+  graph.loadJson("k44.chimera");
   SmtAdvWriter smt_writer(&graph, &truthtable);
   smt_writer.initSmt();
   smt_writer.writeSmt("test.smt2");
