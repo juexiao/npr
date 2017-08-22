@@ -75,4 +75,6 @@
 (assert (< k (ising4 -1 1 1 1)) )
 (assert (< k (ising4 1 1 1 1)) )
 (assert (< 3.99 (- k g)))
+(check-sat)
+(get-model)
 

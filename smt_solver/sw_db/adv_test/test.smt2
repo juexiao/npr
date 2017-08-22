@@ -303,7 +303,6 @@
 (assert (<= g (chimeraIsing 1 -1 -1 1 1 1 1 1)) )
 (assert (<= g (chimeraIsing -1 1 -1 1 1 1 1 1)) )
 (assert (<= g (chimeraIsing 1 1 1 1 1 1 1 1)) )
-
 (assert (< k (chimeraIsing 1 1 -1 -1 -1 -1 -1 -1)) )
 (assert (< k (chimeraIsing -1 -1 1 -1 -1 -1 -1 -1)) )
 (assert (< k (chimeraIsing 1 -1 1 -1 -1 -1 -1 -1)) )

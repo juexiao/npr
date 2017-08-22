@@ -9,12 +9,15 @@
 
 #include "smt_exp/smt_manager.hh"
 #include "smt_exp/bin_iterator.hh"
+#include "hw_tgt/tgt_writer.hh"
 
 #include <algorithm>
 #include <set>
 #include <cassert>
 #include <map>
+#include <cmath>
 #include <fstream>
+#include <cstdlib>
 #include <z3++.h>
 
 
@@ -31,26 +34,100 @@ double toDouble(const std::string& val) {
 
 }
 
+SmtManager::SmtManager(std::string smt_file, std::vector<int> truth_table, TGT_Graph* graph) :
+  _smt_file(smt_file),
+  _truth_table(truth_table),
+  _tgt_graph(graph),
+  _gap(-9999999999999.0) {
+    init();
+}
+
+void SmtManager::init() {
+  TGT_Graph::node_iter n_iter = _tgt_graph->node_begin();
+  for (; n_iter != _tgt_graph->node_end(); ++n_iter) {
+    TGT_Node* node = n_iter->second;
+    _name_to_vars.insert(std::make_pair(node->getName(), 0.0));
+  }
+
+  TGT_Graph::edge_iter e_iter = _tgt_graph->edge_begin();
+  for (; e_iter != _tgt_graph->edge_end(); ++e_iter) {
+    TGT_Edge* edge = *e_iter;
+    _name_to_vars.insert(std::make_pair(edge->getName(), 0.0));
+  }
+}
 
 
-std::string SmtManager::AnalyzeEnergy() {
- 
-  std::stringstream ss;
+
+bool SmtManager::AnalyzeEnergy(double gap) {
+
+  std::string cmd = "cp " + _smt_file + " temp.smt2";
+  system(cmd.c_str());
+
+  std::ofstream temp_file;
+  temp_file.open("temp.smt2", std::ios::app);
+  temp_file << "(assert (< " << gap << " (- k g) ) )" << std::endl;
+
   z3::context ctx;
   z3::set_param("pp.decimal", true);
-  z3::set_param("pp.decimal-precision", 5);
+  z3::set_param("pp.decimal-precision", 2);
 
-  Z3_ast a = Z3_parse_smtlib2_file(ctx, _smt_file.c_str(), 0, 0, 0, 0, 0, 0);
+  Z3_ast a = Z3_parse_smtlib2_file(ctx, "temp.smt2", 0, 0, 0, 0, 0, 0);
   z3::expr e(ctx, a);
   z3::solver z3_solver(ctx);
   z3_solver.add(e);
   
-  ss << binToInt(_truth_table) << ",";
 
   if (z3_solver.check() == z3::unsat) {
-    ss << "unsat,0";
+    return false;
   } else if (z3_solver.check() == z3::unknown) {
-    ss << "unknown,0";
+    assert(0);
+  } else if (z3_solver.check() == z3::sat) {
+    //z3::model m = z3_solver.get_model();
+
+    //for (unsigned i = 0; i < m.size(); ++i) {
+
+    //  assert(m[i].arity() == 0);
+
+    //  std::stringstream s_val;
+    //  std::stringstream s_val_name;
+
+    //  s_val << m[i].name();
+    //  s_val_name << m.get_const_interp(m[i]);
+    //  //std::cout << s_val_name.str() << " " << s_val.str() << std::endl;
+    //  setParam(s_val.str(), s_val_name.str());
+    //}
+    //std::cout << std::endl;
+    //findGap();
+    return true;
+  } else {
+    return false;
+  }
+
+}
+
+void SmtManager::getModel(double gap) {
+
+  std::string cmd = "cp " + _smt_file + " temp.smt2";
+  system(cmd.c_str());
+
+  std::ofstream temp_file;
+  temp_file.open("temp.smt2", std::ios::app);
+  temp_file << "(assert (< " << gap << " (- k g) ) )" << std::endl;
+
+  z3::context ctx;
+  z3::set_param("pp.decimal", true);
+  z3::set_param("pp.decimal-precision", 5);
+
+  Z3_ast a = Z3_parse_smtlib2_file(ctx, "temp.smt2", 0, 0, 0, 0, 0, 0);
+  z3::expr e(ctx, a);
+  z3::solver z3_solver(ctx);
+  z3_solver.add(e);
+  
+
+  if (z3_solver.check() == z3::unsat) {
+    assert(0);
+  } else if (z3_solver.check() == z3::unknown) {
+    assert(0);
   } else if (z3_solver.check() == z3::sat) {
     z3::model m = z3_solver.get_model();
 
@@ -66,12 +143,33 @@ std::string SmtManager::AnalyzeEnergy() {
       //std::cout << s_val_name.str() << " " << s_val.str() << std::endl;
       setParam(s_val.str(), s_val_name.str());
     }
-    //std::cout << std::endl;
     findGap();
-    ss << "sat," << _gap;
+  }
+}
+
+void SmtManager::Analyze() {
+  double delta = 0.1;
+
+  //1) sat
+  if (!AnalyzeEnergy(0)) {
+    std::cout << "not sat.." << std::endl;
   }
 
-  return ss.str();
+  double max_val = 4 * _tgt_graph->getNodeSize() + 2 * _tgt_graph->getEdgeSize();
+  double min_val = 0;
+
+  double med_val = 0;
+  while ((max_val - min_val) > delta) {
+    med_val = min_val + ((max_val - min_val) / 2);
+    if (AnalyzeEnergy(med_val))
+      min_val = med_val;
+    else
+      max_val = med_val;
+  }
+
+  assert(max_val >= min_val);
+  getModel(min_val);
+
 }
 
 unsigned SmtManager::binToInt(const std::vector<int>& table) {
@@ -97,26 +195,9 @@ void SmtManager::setParam(const std::string& var_name, const std::string& val) {
   if (var_name[0] == 'k') return;
   if (var_name[0] == 'g') return;
 
-  if (var_name == "a1") {
-    a1 = toDouble(val);
-  } else if (var_name == "a2") {
-    a2 = toDouble(val);
-  } else if (var_name == "a3") {
-    a3 = toDouble(val);
-  } else if (var_name == "a4") {
-    a4 = toDouble(val);
-  } else if (var_name == "b12") {
-    b12 = toDouble(val);
-  } else if (var_name == "b13") {
-    b13 = toDouble(val);
-  } else if (var_name == "b14") {
-    b14 = toDouble(val);
-  } else if (var_name == "b23") {
-    b23 = toDouble(val);
-  } else if (var_name == "b24") {
-    b24 = toDouble(val);
-  } else if (var_name == "b34") {
-    b34 = toDouble(val);
+  if (_name_to_vars.count(var_name)) {
+    std::cout << "set " << var_name << " " << toDouble(val) << std::endl;
+    _name_to_vars[var_name] = toDouble(val);
   } else {
     std::cout << "Cannot find valid variable name " << var_name << std::endl;
     assert(0);
@@ -125,18 +206,8 @@ void SmtManager::setParam(const std::string& var_name, const std::string& val) {
 }
 
 void SmtManager::findGap() {
-  assert(a1 >= -2 && a1 <= 2);
-  assert(a2 >= -2 && a2 <= 2);
-  assert(a3 >= -2 && a3 <= 2);
-  assert(a4 >= -2 && a4 <= 2);
-  assert(b12 >= -1 && b12 <= 1);
-  assert(b13 >= -1 && b13 <= 1);
-  assert(b14 >= -1 && b14 <= 1);
-  assert(b23 >= -1 && b23 <= 1);
-  assert(b24 >= -1 && b24 <= 1);
-  assert(b34 >= -1 && b34 <= 1);
 
-  BinIterator inputs(4);
+  BinIterator inputs(_tgt_graph->getNodeSize());
   std::vector<double> energies;
   for (; !inputs.end(); ++inputs) { 
     energies.push_back(evalEnergy(inputs.value())) ;
@@ -152,35 +223,45 @@ void SmtManager::findGap() {
 }
 
 double SmtManager::evalEnergy(const std::vector<int>& inputs) {
-  assert(inputs.size() == 4);
+  assert(inputs.size() == _tgt_graph->getNodeSize());
   double energy = 0.0;
 
-  std::vector<double> vals;
-  for (size_t i = 0; i < inputs.size(); ++i) {
+  std::map<std::string, double> name_to_val;
+  size_t i = 0;
+  std::map<std::string, double>::iterator var_iter = _name_to_vars.begin();
+  for (; var_iter != _name_to_vars.end(); ++var_iter, ++i) {
+    if (var_iter->first[0] == 'b') continue;
     if (inputs[i] == 0)
-      vals.push_back(-1.0);
+      name_to_val.insert(std::make_pair(var_iter->first, -1));
     else if (inputs[i] == 1)
-      vals.push_back(1.0);
+      name_to_val.insert(std::make_pair(var_iter->first, 1));
     else
       assert(0);
   }
-  assert(vals.size() == 4);
 
-  energy = (vals[0] * a1) + (vals[1] * a2) + (vals[2] * a3) + (vals[3] * a4) +
-           (vals[0] * vals[1] * b12) + (vals[0] * vals[2] * b13) + (vals[0] * vals[3] * b14) +
-           (vals[1] * vals[2] * b23) + (vals[1] * vals[3] * b24) +
-           (vals[2] * vals[3] * b34);
+  TGT_Graph::node_iter n_iter = _tgt_graph->node_begin();
+  for (; n_iter != _tgt_graph->node_end(); ++n_iter) {
+    TGT_Node* node = n_iter->second;
+    std::string node_name = node->getName();
+    energy += name_to_val[node_name] * _name_to_vars[node_name];
+  }
 
 
+  TGT_Graph::edge_iter e_iter = _tgt_graph->edge_begin();
+  for (; e_iter != _tgt_graph->edge_end(); ++e_iter) {
+    TGT_Edge* edge = *e_iter;
+    std::string f_name = edge->getNode(0)->getName();
+    std::string t_name = edge->getNode(1)->getName();
+    energy += name_to_val[f_name] * name_to_val[t_name] * _name_to_vars[edge->getName()];
+  }
+    
   return energy;
-
-
 }
 
 void SmtManager::writeEnergyLandscape(const std::string& outfile) {
   std::ofstream outf;
   outf.open(outfile.c_str());
-  BinIterator inputs(4);
+  BinIterator inputs(_tgt_graph->getNodeSize());
   std::vector<double> energies;
   std::map<std::string, std::vector<int> > remap_input;
   for (; !inputs.end(); ++inputs) { 
@@ -198,8 +279,6 @@ void SmtManager::writeEnergyLandscape(const std::string& outfile) {
   }
 
   outf.close();
-
-
 }
 
 

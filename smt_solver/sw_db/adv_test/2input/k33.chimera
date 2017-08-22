@@ -29,19 +29,14 @@
             "Name": "a5",
             "Assign": "-1",
             "Index": "5"
-        },
-        {
-            "Name": "a6",
-            "Assign": "-1",
-            "Index": "6"
-        },
-        {
-            "Name": "a7",
-            "Assign": "-1",
-            "Index": "7"
         }
     ],
     "Edges": [
+        {
+            "Name": "b03",
+            "Node0": "a0",
+            "Node1": "a3"
+        },
         {
             "Name": "b04",
             "Node0": "a0",
@@ -53,14 +48,9 @@
             "Node1": "a5"
         },
         {
-            "Name": "b06",
-            "Node0": "a0",
-            "Node1": "a6"
-        },
-        {
-            "Name": "b07",
-            "Node0": "a0",
-            "Node1": "a7"
+            "Name": "b13",
+            "Node0": "a1",
+            "Node1": "a3"
         },
         {
             "Name": "b14",
@@ -73,14 +63,9 @@
             "Node1": "a5"
         },
         {
-            "Name": "b16",
-            "Node0": "a1",
-            "Node1": "a6"
-        },
-        {
-            "Name": "b17",
-            "Node0": "a1",
-            "Node1": "a7"
+            "Name": "b23",
+            "Node0": "a2",
+            "Node1": "a3"
         },
         {
             "Name": "b24",
@@ -91,36 +76,6 @@
             "Name": "b25",
             "Node0": "a2",
             "Node1": "a5"
-        },
-        {
-            "Name": "b26",
-            "Node0": "a2",
-            "Node1": "a6"
-        },
-        {
-            "Name": "b27",
-            "Node0": "a2",
-            "Node1": "a7"
-        },
-        {
-            "Name": "b34",
-            "Node0": "a3",
-            "Node1": "a4"
-        },
-        {
-            "Name": "b35",
-            "Node0": "a3",
-            "Node1": "a5"
-        },
-        {
-            "Name": "b36",
-            "Node0": "a3",
-            "Node1": "a6"
-        },
-        {
-            "Name": "b37",
-            "Node0": "a3",
-            "Node1": "a7"
         }
     ]
 }

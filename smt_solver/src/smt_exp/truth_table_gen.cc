@@ -64,16 +64,16 @@ void TruthTableGenerator::generateAllTruthTable() {
 
 
     result_file << index << ",";
-    SmtManager smt_mgr(outfilename + ".smt2", truth_table);
-    result_file << smt_mgr.AnalyzeEnergy() << std::endl;
-    smt_mgr.writeEnergyLandscape(outfilename + ".energy");
+    //SmtManager smt_mgr(outfilename + ".smt2", truth_table);
+    //result_file << smt_mgr.AnalyzeEnergy() << std::endl;
+    //smt_mgr.writeEnergyLandscape(outfilename + ".energy");
 
   }
 
   std::vector<int> lut(0,4);
-  SmtManager smt_mgr(_path+"/bak.smt2", lut);
+  //SmtManager smt_mgr(_path+"/bak.smt2", lut);
   //smt_mgr.AnalyzeEnergy();
-  smt_mgr.writeEnergyLandscape("bak.energy");
+  //smt_mgr.writeEnergyLandscape("bak.energy");
 
   result_file.close();
 

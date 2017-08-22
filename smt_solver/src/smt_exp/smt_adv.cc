@@ -120,14 +120,6 @@ void SmtAdvWriter::initAsserts() {
 
   }
 
-  {
-    std::stringstream ss;
-    ss << "(assert (< 0 (- k g) ) )" << std::endl;
-    ss << "(check-sat)" << std::endl;
-    _asserts.push_back(ss.str());
-  }
-
-
 
 }
 

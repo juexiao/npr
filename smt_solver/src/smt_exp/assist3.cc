@@ -136,6 +136,7 @@ void AssistX::initExprs() {
   for (; !bin.end(); ++bin, ++counter) {
     std::vector<int> value = bin.value();
     std::vector<std::string> exps;
+    exps.push_back("c" + std::to_string(counter));
     for (unsigned long i = 0; i < _input_num; ++i) {
       assert(value[i] == 0 || value[i] == 1);
       std::string exp1 = value[i] == 1 ? "(/ (+ 1 " + _inputs[i]->getName() + ") 2)" :
@@ -143,7 +144,7 @@ void AssistX::initExprs() {
       exps.push_back(exp1);
     }
 
-    SmtExpression* smt_exp = new SmtExpression("*", "c" + std::to_string(counter), exps[0], exps[1], exps[2]);
+    SmtExpression* smt_exp = new SmtExpression("*", exps);
     _expressions.push_back(smt_exp);
   }
 
@@ -179,7 +180,7 @@ std::string AssistX::getFuncDecl() const {
   //2) body
   ss << "(+";
   for (unsigned long i = 0; i < _expressions.size(); ++i) {
-    ss << " " << _expressions[i]->getExprFour();
+    ss << " " << _expressions[i]->getExprReal();
   }
   ss << ")";
 

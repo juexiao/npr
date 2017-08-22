@@ -87,6 +87,7 @@ public:
   edge_iter edge_end() { return _edges.end(); }
 
   size_t getNodeSize() { return _nodes.size(); }
+  size_t getEdgeSize() { return _edges.size(); }
   
 
 private:

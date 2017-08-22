@@ -129,6 +129,15 @@ std::string SmtExpression::getExpr() {
   return "";
 }
 
+std::string SmtExpression::getExprReal() {
+  std::stringstream ss;
+  ss << "(" << _operator;
+  for (size_t i = 0; i < _vars.size(); ++i)
+    ss << " " << _vars[i];
+  ss << ") ";
+  return ss.str();
+}
+
 
 IsingFourFunc::~IsingFourFunc() {
 

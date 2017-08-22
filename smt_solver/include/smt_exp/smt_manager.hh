@@ -12,36 +12,27 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 
 double toDouble(const std::string& val);
 
 
+class TGT_Graph;
 class SmtManager {
 
 
 public:
-  SmtManager(std::string smt_file, std::vector<int> truth_table) :
-  _smt_file(smt_file),
-  _truth_table(truth_table),
-  a1(-3),
-  a2(-3),
-  a3(-3),
-  a4(-3),
-  b12(-3),
-  b13(-3),
-  b14(-3),
-  b23(-3),
-  b24(-3),
-  b34(-3),
-  _gap(-999)
-  {}
+  SmtManager(std::string smt_file, std::vector<int> truth_table, TGT_Graph* graph);
+  ~SmtManager() {}
 
 
-  std::string AnalyzeEnergy();
+  void Analyze();
   void writeEnergyLandscape(const std::string& outfile);
 
 private:
+
+  void init();
 
   unsigned binToInt(const std::vector<int>& table);
 
@@ -49,23 +40,17 @@ private:
 
   void setParam(const std::string& var_name, const std::string& val);
   void findGap();
+  bool AnalyzeEnergy(double gap);
+  void getModel(double gap);
 
 
 
 
   std::string _smt_file;
   std::vector<int> _truth_table;
+  TGT_Graph* _tgt_graph;
+  std::map<std::string, double> _name_to_vars;
 
-  double a1;
-  double a2;
-  double a3;
-  double a4;
-  double b12;
-  double b13;
-  double b14;
-  double b23;
-  double b24;
-  double b34;
 
   double _gap;
   

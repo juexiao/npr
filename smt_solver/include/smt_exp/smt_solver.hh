@@ -117,17 +117,21 @@ public:
 
 
   SmtExpression(std::string oper, std::string var1, std::string var2, std::string var3, std::string var4) :
-    _operator(oper),
+   _operator(oper),
     _var1(var1),
     _var2(var2),
     _var3(var3),
     _var4(var4) {}
+
+  SmtExpression(std::string oper, const std::vector<std::string>& vars) :
+    _operator(oper), _vars(vars) {}
 
   std::string getExprTwo();
   std::string getExprThree();
   std::string getExprFour();
 
   std::string getExpr();
+  std::string getExprReal();
 
 private:
   std::string _operator;
@@ -135,7 +139,7 @@ private:
   std::string _var2;
   std::string _var3;
   std::string _var4;
-
+  std::vector<std::string> _vars;
 };
 
 class SmtFunction {
